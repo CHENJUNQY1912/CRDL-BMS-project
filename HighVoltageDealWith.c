@@ -33,7 +33,7 @@ void HighVoltage_Main(void *pvParameters)
     
     float K_R=1;
     
-    uint16 Waitingtime=500;//绝缘检测开关切换后等待时间
+    uint16 Waitingtime=300;//绝缘检测开关切换后等待时间
     uint16 Last_Leak_Data=300;
     
     Adafruit_ADS1115(0x48);
@@ -195,130 +195,7 @@ void HighVoltage_Main(void *pvParameters)
                     }
                     Temp_Leak_Data=LeakRn;  
                 }
-            }                                           
-/*            
-            if(ANC0<=ANC1)//求RP
-            {      
-                //测RP
-                MCU_IOOut_BspSet(14,0);//Ctrl_ISO  //测绝缘
-                MCU_IOOut_BspSet(15,1);//Ctr2_ISO
-                MCU_IOOut_BspSet(16,0);//Ctr3_ISO  //接入PE
-                MCU_IOOut_BspSet(17,1);//Ctr4_ISO
-                vTaskDelay(Waitingtime/portTICK_RATE_MS); //等待1S，改为10ms（DK）
-                for(i=0;i<2;i++)
-                {
-                    ChannnelVoltage[i]=(readADC_SingleEnded(i)&0x7fff)*61440/0x7fff;                    
-                }
-                AN1_1=ChannnelVoltage[1];  
-//                UnData=(uint32)((float)AN1_1*2005.6/5600);
-//                U1Data=(uint32)((float)AN0_1*4011.2/5600);
-                UnData=(uint32)((float)AN1_1*2500.6/5600);
-                U1Data=(uint32)((float)AN0_1*5001.2/5600);
-                
-                UpData=U1Data-UnData;
-          
-                MCU_IOOut_BspSet(14,0);//Ctrl_ISO  //测绝缘
-                MCU_IOOut_BspSet(15,0);//Ctr2_ISO  //接入负端R阻值
-                MCU_IOOut_BspSet(16,0);//Ctr3_ISO  //接入PE
-                MCU_IOOut_BspSet(17,1);//Ctr4_ISO
-                vTaskDelay(Waitingtime/portTICK_RATE_MS); //等待1S，改为10ms（DK）
-           
-                for(i=0;i<2;i++)
-                {
-                    ChannnelVoltage[i]=(readADC_SingleEnded(i)&0x7fff)*61440/0x7fff;                    
-                }
-                AN0_2=ChannnelVoltage[0];   
-                AN1_2=ChannnelVoltage[1];
-//                UnpData=(uint32)((float)AN1_2*2005.6/5600);
-//                U2Data=(uint32)((float)AN0_2*4011.2/5600);
-                UnpData=(uint32)((float)AN1_2*2500.6/5600);
-                U2Data=(uint32)((float)AN0_2*5001.2/5600);
-                
-                UppData=U2Data-UnpData;
-                if(UnData*UnpData!=0)
-                {
-//                    LeakRp=(uint32)((float)(UnData*UppData-UpData*UnpData)/UnData*2005.6/UnpData);
-                    LeakRp=(uint32)((float)(UnData*UppData-UpData*UnpData)/UnData*2500.6/UnpData);
-
-                    if(LeakRp>2000)
-                    {
-                        LeakRp=2000;
-                    }
-                }
-                Temp_Leak_Data=LeakRp;     
-            }else
-            {                        
-                //测RN   
-                MCU_IOOut_BspSet(14,0);//Ctrl_ISO  //测绝缘
-                MCU_IOOut_BspSet(15,1);//Ctr2_ISO
-                MCU_IOOut_BspSet(16,0);//Ctr3_ISO  //接入PE
-                MCU_IOOut_BspSet(17,1);//Ctr4_ISO
-                vTaskDelay(Waitingtime/portTICK_RATE_MS); //等待1S，改为10ms（DK）
-                         
-                for(i=0;i<2;i++)
-                {
-                    ChannnelVoltage[i]=(readADC_SingleEnded(i)&0x7fff)*61440/0x7fff;                   
-                }             
-                AN0_1=ChannnelVoltage[0];  
-                AN1_1=ChannnelVoltage[1];                 
-          
-                if(AN1_1<600)
-                {
-                    AN1_1=0;
-                }
-                if(AN0_1<600)
-                {
-                    AN0_1=0;
-                }
-//                UnData=(uint32)((float)AN1_1*2005.6/5600);
-//                U1Data=(uint32)((float)AN0_1*4011.2/5600);
-                UnData=(uint32)((float)AN1_1*2500.6/5600);
-                U1Data=(uint32)((float)AN0_1*5001.2/5600);
-                
-                UpData=U1Data-UnData;
-          
-                MCU_IOOut_BspSet(14,0);//Ctrl_ISO  //测绝缘
-                MCU_IOOut_BspSet(15,1);//Ctr2_ISO
-                MCU_IOOut_BspSet(16,0);//Ctr3_ISO  //接入PE
-                MCU_IOOut_BspSet(17,0);//Ctr4_ISO  //接入正端R阻值
-                vTaskDelay(Waitingtime/portTICK_RATE_MS); //等待1S，改为10ms（DK）
-                      
-                for(i=0;i<2;i++)
-                {
-                    ChannnelVoltage[i]=(readADC_SingleEnded(i)&0x7fff)*61440/0x7fff;                   
-                }             
-                AN0_2=ChannnelVoltage[0];  
-                AN1_2=ChannnelVoltage[1];  
-                          
-            
-                if(AN1_2<600)
-                {
-                    AN1_2=0;
-                }
-                if(AN0_2<600)
-                {
-                    AN0_2=0;
-                }
-//                UnpData=(uint32)((float)AN1_2*2005.6/5600);
-//                U2Data=(uint32)((float)AN0_2*4011.2/5600);
-                UnpData=(uint32)((float)AN1_2*2500.6/5600);
-                U2Data=(uint32)((float)AN0_2*5001.2/5600);
-                
-                UppData=U2Data-UnpData;
-          
-                if(UpData*UppData!=0)
-                {
-//                    LeakRn=(uint32)((float)(UpData*UnpData-UnData*UppData)/UpData*2005.6/UppData);
-                    LeakRn=(uint32)((float)(UpData*UnpData-UnData*UppData)/UpData*2500.6/UppData);
-
-                    if(LeakRn>2000)
-                    {
-                        LeakRn=2000;
-                    }
-
-                }
-                Temp_Leak_Data=LeakRn;
-            }*/                            
+            }                                             
         }
         Leak_Data+=Temp_Leak_Data;
           
